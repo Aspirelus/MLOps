@@ -1,0 +1,44 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <jenkins.triggers.ReverseBuildTrigger>
+      <spec></spec>
+      <upstreamProjects>train, </upstreamProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </jenkins.triggers.ReverseBuildTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>val_acc=$(sudo -S docker container exec model  jq .validation_acc /home/admin/results/train_metadata.json)
+threshold=0.8
+
+if echo &quot;$threshold &gt; $val_acc&quot; | bc -l | grep -q 1
+then
+	echo &apos;validation accuracy is lower than the threshold, process stopped&apos;
+else
+   echo &apos;validation accuracy is higher than the threshold&apos;
+   sudo -S docker container exec model python3 test.py
+   sudo -S docker container exec model cat /home/admin/results/train_metadata.json /home/admin/results/test_metadata.json 
+fi    
+
+sudo -S docker rm -f model</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

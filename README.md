@@ -7,3 +7,4 @@ credentials: admin # admin
 - ngrok
 static domain: https://fresh-handy-serval.ngrok-free.app/
 command: ngrok http --domain=fresh-handy-serval.ngrok-free.app 8080
+
